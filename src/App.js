@@ -1,20 +1,15 @@
 import logo from "./logo.svg";
 import "./App.css";
-
+import Header from './components/Header'
+import Content from "./components/Content";
+import Footer from "./components/Footer";
 function App() {
-  
-  const handleRandomName = () => {
-    const names = ["arsam","navid","hesam"];
-    const intNum = Math.floor(Math.random()*3)
-    return names[intNum]
-  }
-  
+   
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>This is {handleRandomName()}'s code.</p>
-      </header>
+      <Header />
+      <Content />
+      <Footer />
     </div>
   );
 }
