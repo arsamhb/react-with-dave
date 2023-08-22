@@ -7,7 +7,7 @@ const Taskbar = ({ items, handleCheck, handleDelete }) => {
         <TaskLine
             key={item.id}
             item={item}
-            handleCheck={handleCheck}
+            handleCheck={handleCheck} 
             handleDelete={handleDelete}
         />
       ))}
