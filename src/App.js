@@ -4,6 +4,7 @@ import Content from "./components/Content";
 import AddForm from "./components/AddForm";
 import Footer from "./components/Footer";
 import { useEffect, useState } from "react";
+import apiRequest from "./components/apiRequest";
 
 function App() {
   const API_URL = "http://localhost:1234/items";
@@ -31,21 +32,38 @@ function App() {
       };
       setTimeout(() => {
         fetchData();
-      }, 3000);
+      }, 300);
     },
     /* ONLY WHEN PAGE LOADS */ []
   );
 
-  const handleCheck = (id) => {
+  const handleCheck = async (id) => {
     const tasks = items.map((item) =>
       item.id === id ? { ...item, checked: !item.checked } : item
     );
     setItems(tasks);
+
+    const checkedItem = tasks.filter((item) => item.id === id);
+    const updateOption = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ checked: checkedItem[0].checked }),
+    };
+    const api_url = `${API_URL}/${id}`;
+    const result = await apiRequest(api_url, updateOption);
+    if (result) setFetchErr(result);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const tasks = items.filter((item) => item.id !== id);
     setItems(tasks);
+
+    const deleteOption = { method: "DELETE" };
+    const api_url = `${API_URL}/${id}`;
+    const result = await apiRequest(api_url,deleteOption)
+    if (result) setFetchErr(result);
   };
 
   const handleSubmit = (e) => {
@@ -55,11 +73,23 @@ function App() {
     setNewItem("");
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
-    const checked = false;
-    const tasks = [...items, { id: id, checked: checked, item: newItem }];
+    const newTask = { id: id, checked: false, item: newItem };
+    const tasks = [...items, newTask];
     setItems(tasks);
+
+    const postOption = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      /* THE BODY SHOULD HAS THE JSON.TRINGIFY METHOD */
+      body: JSON.stringify(newTask),
+    };
+    /* DONT FORGET AWAIT */
+    const result = await apiRequest(API_URL, postOption);
+    if (result) setFetchErr(result);
   };
 
   return (
@@ -72,7 +102,7 @@ function App() {
       />
       <SearchItem searchWord={searchWord} setSearchWord={setSearchWord} />
       <main>
-        {isLoading && <p>Items are loading...</p> }
+        {isLoading && <p>Items are loading...</p>}
         {fetchErr && <p>{fetchErr}</p>}
         {!fetchErr && !isLoading && (
           <Content
