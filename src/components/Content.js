@@ -3,7 +3,7 @@ import Taskbar from "./Taskbar";
 
 const Content = ({ items, handleCheck, handleDelete }) => {
   return (
-    <main>
+    <>
       {items.length ? (
         <Taskbar
           items={items}
@@ -13,7 +13,7 @@ const Content = ({ items, handleCheck, handleDelete }) => {
       ) : (
         <h2>you have no task</h2>
       )}
-    </main>
+    </>
   );
 };
 

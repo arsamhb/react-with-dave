@@ -6,15 +6,35 @@ import Footer from "./components/Footer";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [items, setItems] = useState(
-    JSON.parse(localStorage.getItem("RsList")) || []
-  );
+  const API_URL = "http://localhost:1234/items";
+
+  const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [searchWord, setSearchWord] = useState("");
+  const [fetchErr, setFetchErr] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    localStorage.setItem("RsList", JSON.stringify(items));
-  }, [items]);
+  useEffect(
+    () => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(API_URL);
+          if (!response.ok) throw Error("did not receive expected data");
+          const data = await response.json();
+          setItems(data);
+          setFetchErr(null);
+        } catch (err) {
+          setFetchErr(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      setTimeout(() => {
+        fetchData();
+      }, 3000);
+    },
+    /* ONLY WHEN PAGE LOADS */ []
+  );
 
   const handleCheck = (id) => {
     const tasks = items.map((item) =>
@@ -50,17 +70,20 @@ function App() {
         setNewItem={setNewItem}
         handleSubmit={handleSubmit}
       />
-      <SearchItem 
-        searchWord={searchWord} 
-        setSearchWord={setSearchWord} 
-        />
-      <Content
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-        items={
-          items.filter(item => ((item.item).toLowerCase()).includes(searchWord.toLowerCase()))
-        }
-      />
+      <SearchItem searchWord={searchWord} setSearchWord={setSearchWord} />
+      <main>
+        {isLoading && <p>Items are loading...</p> }
+        {fetchErr && <p>{fetchErr}</p>}
+        {!fetchErr && !isLoading && (
+          <Content
+            handleCheck={handleCheck}
+            handleDelete={handleDelete}
+            items={items.filter((item) =>
+              item.item.toLowerCase().includes(searchWord.toLowerCase())
+            )}
+          />
+        )}
+      </main>
       <Footer tasksLength={items.length} />
     </div>
   );
